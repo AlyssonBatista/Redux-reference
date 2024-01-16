@@ -1,8 +1,14 @@
 # Redux-reference
 ````Store````
-> ele faz isso 
+> A store da acesso ao estado global da aplicação e ela recebe como argumento o reducer que retorna o estado atual da store.
 ````javascript
-var add2 = function(number) {
-	return number + 2;
+function reducer() {
+  return {
+    nome: 'André',
+    id: 199,
+  };
 }
+
+const store = Redux.createStore(reducer);
+
 ````
