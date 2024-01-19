@@ -144,13 +144,13 @@ function resetaCurso(){
 const students = immer.produce((state,action) => {
   switch (action.type){
     case INCREMENTAR_TEMPO:
-      state.students.diasRestantes + 1;
+      state.diasRestantes = state.diasRestantes + 1;
       break;
     case REDUZIR_TEMPO:
-      state.students.diasRestantes - 1;
+      state.diasRestantes = state.diasRestantes - 1;
       break;
     case MODIFICAR_EMAIL:
-      state.students.email = action.payload;
+      state.email = action.payload;
       break;
   }
 },aluno)
@@ -160,22 +160,30 @@ const classes = immer.produce((state,action) => {
     case COMPLETAR_AULA:
       state.classes[action.payload].completa = true;
       break;
-    // case COMPLETAR_CURSO:
-    //   state.classes.forEach(element => {
-    //     state.classes[element].completa = true;
-    //   }
-    // case RESETAR_CURSO:
-    //   state.classes.forEach(element => {
-    //     state.classes[element].completa = false
-    //   })
+    case COMPLETAR_CURSO:
+      state.classes.forEach(element => {
+        state.classes[element].completa = true;
+      }
+ 
   }
 },aulas)
 
 const reducer = Redux.combineReducers({students,classes})
 const store =  Redux.createStore(reducer,window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__())
 
-store.dispatch(reduzirTempo())
-const state = store.getState()
-console.log(state)
+let state = store.getState()
+console.log('estado inicial',state.students.diasRestantes )
 
+
+store.dispatch(reduzirTempo())
+state = store.getState()
+console.log('atual estado',state.students.diasRestantes)
+
+store.dispatch(modificaEmail('alyssonbatista241@gmail.com'))
+state = store.getState()
+console.log('atual estado',state.students.email)
+
+store.dispatch()
+state = store.getState()
+console.log('atual estado',state.students.email)
 // console.log(store.getState().students.diasRestantes)
