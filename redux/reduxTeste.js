@@ -63,6 +63,7 @@
 
 
 // ================================================================================================================
+
 // Usando o Redux (pode usar Immer ou Não).
 // Crie uma store contendo os estados iniciais abaixo
 // Crie as seguintes ações:
@@ -158,13 +159,18 @@ const students = immer.produce((state,action) => {
 const classes = immer.produce((state,action) => {
   switch (action.type){
     case COMPLETAR_AULA:
-      state.classes[action.payload].completa = true;
+      state[action.payload].completa = true;
       break;
     case COMPLETAR_CURSO:
-      state.classes.forEach(element => {
-        state.classes[element].completa = true;
-      }
- 
+      state.forEach(element => {
+        element.completa = true
+      });
+      break;
+    case RESETAR_CURSO:
+      state.forEach(element => {
+        element.completa = false
+      });
+      break;
   }
 },aulas)
 
@@ -172,18 +178,11 @@ const reducer = Redux.combineReducers({students,classes})
 const store =  Redux.createStore(reducer,window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__())
 
 let state = store.getState()
-console.log('estado inicial',state.students.diasRestantes )
+console.log(state.classes)
 
 
-store.dispatch(reduzirTempo())
+store.dispatch(resetaCurso())
 state = store.getState()
-console.log('atual estado',state.students.diasRestantes)
+console.log('estado atual',state)
 
-store.dispatch(modificaEmail('alyssonbatista241@gmail.com'))
-state = store.getState()
-console.log('atual estado',state.students.email)
-
-store.dispatch()
-state = store.getState()
-console.log('atual estado',state.students.email)
-// console.log(store.getState().students.diasRestantes)
+ 
