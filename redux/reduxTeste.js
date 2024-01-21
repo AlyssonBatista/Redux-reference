@@ -1,68 +1,3 @@
-// const INCREMENTAR = 'INCREMENTAR';
-// const DECREMENTAR = 'DECREMENTAR';
-// const MULTI = 'MULTI';
-
-
-// function incremnetar(){
-//     return {type: INCREMENTAR}
-// }
-
-// function decrementar(){
-//     return {type: DECREMENTAR}
-// }
-
-// function multi(payload){
-//     return {type: MULTI, payload}
-// }
-
-
-// const initialStateMulti = 2
-// const initialStateAdicao = 10
-  
-
-// const multiplicacao = immer.produce((state, action) => {
-//     switch (action.type){
-//         case MULTI:
-//             state * action.payload;
-//             break 
-//     }
-// },initialStateMulti) 
-
-
-// const adicao = immer.produce((state, action) => {
-//     switch (action.type){
-//         case INCREMENTAR:
-//             state + 1;
-//             break;
-//         case DECREMENTAR:
-//             state - 1;
-//             break;
-//     }
-// },initialStateAdicao) 
-
-//  const reducer = Redux.combineReducers({adicao,multiplicacao})
-//  const store = Redux.createStore(reducer,window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__())
-
-//  let state = store.getState();
-//  console.log(state.adicao)
-
-
-// store.dispatch(incremnetar())
-// state = store.getState()
-// console.log(state)
-
- 
-// store.dispatch(decrementar())
-// state = store.getState()
-// console.log(state)
-
-
-// store.dispatch(multi(3))
-// state = store.getState()
-// console.log(state.multiplicacao)
-
-
-// ================================================================================================================
 
 // Usando o Redux (pode usar Immer ou Não).
 // Crie uma store contendo os estados iniciais abaixo
@@ -78,111 +13,48 @@
 // Renderize na tela o nome, email, tempo restante e o total de aulas completas
 // Configure a DevTools
 
-const aluno = {
-  nome: 'André Rafael',
-  email: 'andre@origamid.com',
-  diasRestantes: 120,
-};
+import store from "./store/configStore.js"
 
-const aulas = [
-  {
-    id: 1,
-    nome: 'Design',
-    completa: true,
-  },
-  {
-    id: 2,
-    nome: 'HTML',
-    completa: false,
-  },
-  {
-    id: 3,
-    nome: 'CSS',
-    completa: false,
-  },
-  {
-    id: 4,
-    nome: 'JavaScript',
-    completa: false,
-  },
-];
+import { incrementar,reduzirTempo,modificaEmail } from "./store/reducers/students.js";
+import { completaAula,completaCurso,resetaCurso } from "./store/reducers/classes.js";
 
-// constantes ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+const render = () => {
+  const {students,classes} = store.getState();
 
-const INCREMENTAR_TEMPO = 'INCREMENTAR_TEMPO';
-const REDUZIR_TEMPO = 'REDUZIR_TEMPO';
-const MODIFICAR_EMAIL = 'MODIFICAR_EMAIL';
-const COMPLETAR_AULA = 'COMPLETAR_AULA';
-const COMPLETAR_CURSO = 'COMPLETAR_CURSO';
-const RESETAR_CURSO =  'RESETAR_CURSO'
+  const aulaElemento = document.getElementById('aulas');
+  const alunoElemento = document.getElementById('aluno');
 
-
-function incrementar(){
-  return {type: INCREMENTAR_TEMPO }
+  alunoElemento.innerText = `${students.nome} : ${students.email} : ${students.diasRestantes}`;
+  aulaElemento.innerText = classes.filter((a) => a.completa === true).length;
 }
 
-function reduzirTempo(){
-  return {type: REDUZIR_TEMPO}
-}
+render();
+store.subscribe(render);
 
-function modificaEmail(payload){
-  return {type: MODIFICAR_EMAIL,payload}
-}
-
-function completaAula(payload){
-  return {type: COMPLETAR_AULA,payload}
-}
-
-function completaCurso(){
-  return {type: COMPLETAR_CURSO}
-}
-
-function resetaCurso(){
-  return {type: RESETAR_CURSO}
-}
+let state =store.getState()
+console.log(`Estado inicial:`,state);
 
 
-const students = immer.produce((state,action) => {
-  switch (action.type){
-    case INCREMENTAR_TEMPO:
-      state.diasRestantes = state.diasRestantes + 1;
-      break;
-    case REDUZIR_TEMPO:
-      state.diasRestantes = state.diasRestantes - 1;
-      break;
-    case MODIFICAR_EMAIL:
-      state.email = action.payload;
-      break;
-  }
-},aluno)
+store.dispatch(incrementar())
+state = store.getState()
+console.log('Atual estado 1',state);
 
-const classes = immer.produce((state,action) => {
-  switch (action.type){
-    case COMPLETAR_AULA:
-      state[action.payload].completa = true;
-      break;
-    case COMPLETAR_CURSO:
-      state.forEach(element => {
-        element.completa = true
-      });
-      break;
-    case RESETAR_CURSO:
-      state.forEach(element => {
-        element.completa = false
-      });
-      break;
-  }
-},aulas)
+store.dispatch(reduzirTempo())
+state = store.getState()
+console.log('Atual estado 2',state);
 
-const reducer = Redux.combineReducers({students,classes})
-const store =  Redux.createStore(reducer,window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__())
+store.dispatch(modificaEmail('alysssonbatista241@gmail.com'))
+state = store.getState()
+console.log('Atual estado 3',state);
 
-let state = store.getState()
-console.log(state.classes)
+store.dispatch(completaAula(0))
+state = store.getState()
+console.log('Atual estado 4',state);
 
+store.dispatch(completaCurso())
+state = store.getState()
+console.log('Atual estado 5',state);
 
 store.dispatch(resetaCurso())
 state = store.getState()
-console.log('estado atual',state)
-
- 
+console.log('Atual estado 6',state);
