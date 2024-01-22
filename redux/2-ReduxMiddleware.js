@@ -1,69 +1,72 @@
-// ============================ CURRYING
-function somar(a,b,c){
-    return a + b + c;
-}
-
-let soma = somar(1,2,3);
-console.log(soma)
-
-function somar2(a) {
-    return (b) => {
-        return (c) => {
-            return a + b + c;
-        }
-    }
-}
-
-let soma2 = somar2(4)(5)(5)
-console.log(soma2)
-
 // ============================= MIDDLEWARE
 
-const INCREMENTAR = 'INCREMENTAR';
-const REDUZIR = 'REDUZIR';
+const FETCH_STARTED = 'FETCH_STARTED';
+const FETCH_SUCCESS = 'FETCH_SUCCESS';
+const FETCH_ERROR = 'FETCH_ERROR';
 
-const incrementar = () => {
-    return {type: INCREMENTAR}
+const started = () => {
+    return {type: FETCH_STARTED}
 }
 
-const reduzir = () => {
-    return {type: REDUZIR}
+const sucess = (payload) => {
+    return {type: FETCH_SUCCESS,payload}
 }
 
+const error = (payload) => {
+    return {type: FETCH_ERROR,payload}
+}
 
-function reducer(state = 0, action){
+const initialState = {
+    loading: false,
+    data: null,
+    error: null,
+};
+
+function reducer(state = initialState, action){
     switch (action.type){
-        case INCREMENTAR:
-            return state + 1;
-        case REDUZIR:
-            return state - 1;
+        case FETCH_STARTED:
+            return {...state,loading: true};
+        case FETCH_SUCCESS:
+            return {data: action.payload, loading: false,error: null };
+        case FETCH_ERROR:
+            return {data: null, loading: false, error: action.payload};
         default:
             return state;
     }
 }
 
-const logger = (store) =>  (next) =>  (action) => {
-    console.group(action.type)
-        console.log('ACTION',action)
-        console.log('Prev_state')
-        console.log('testando 3')
-    console.groupEnd()
-    return next(action)
-}
-    
+
+ 
+const thunk = (store) => (next) => (action) => {
+    if (typeof action === 'function') {
+      return action(store.dispatch, store.getState);
+    } 
+    return next(action);
+};
+  
+
+  const { compose, applyMiddleware } = Redux;
+
+  const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
+  const enhancer = composeEnhancers(applyMiddleware(thunk));
+  
+  const store = Redux.createStore(reducer, enhancer);
+  
 
 
-const middleware = Redux.applyMiddleware(logger)
-
-const store = Redux.createStore(reducer, middleware)
-
-let state = store.getState()
 
 
-store.dispatch(incrementar())
-state = store.getState()
-console.log(state)
-
-store.dispatch(reduzir())
-state = store.getState()
-console.log(state)
+// Action Creator, retorna uma função ao invés de um objeto
+function fetchUrl(url) {
+    return async (dispatch) => {
+      try {
+        dispatch({ type: 'FETCH_STARTED' });
+        const data = await fetch(url).then((r) => r.json());
+        dispatch({ type: 'FETCH_SUCCESS', payload: data });
+      } catch (error) {
+        dispatch({ type: 'FETCH_ERROR', payload: error.message });
+      }
+    };
+  }
+  
+  store.dispatch(fetchUrl('https://pokeapi.co/api/v2/pokemon/'));
